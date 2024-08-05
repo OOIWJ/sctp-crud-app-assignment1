@@ -9,15 +9,16 @@
 </head>
 <body>
     <div class="container mt-5">
-        <h1 class="text-center">Delivery List</h1>
+        <h1 class="text-center" id="deliveryListTitle">Delivery List</h1>
         <div class="mb-3">
           <input type="text" id="itemCode" class="form-control" placeholder="Item Code">
         </div>
         <div class="mb-3">
-            <input type="text" id="address" class="form-control" placeholder="Address">
-          </div>
+          <input type="text" id="address" class="form-control" placeholder="Address">
+        </div>
         <div class="mb-3">
-          <select id="taskUrgency" class="form-control">
+            <select id="taskUrgency" class="form-control">
+            <option value="undefined" style="background-color:rgb(227, 224, 224);">Urgency level</option>
             <option value="Low">Low</option>
             <option value="Medium">Medium</option>
             <option value="High">High</option>
@@ -30,10 +31,28 @@
         </ul>
         <button id="save-btn" class="btn btn-success mt-3">Save</button>
       
-    
+    </div>
+
+    <!-- #############   Brands #############  -->
+    <div class="container mt-5">
+      <h1 class="text-center" id="brandListTitle">Brand List</h1>
+      <div class="mb-3">
+        <input type="text" id="code" class="form-control" placeholder="Code">
       </div>
+      <div class="mb-3">
+        <input type="text" id="name" class="form-control" placeholder="Name">
+      </div>
+      <div class="mb-3">
+        <input type="text" id="category" class="form-control" placeholder="Category">
+      </div>
+      <button id="addBrandList" class="btn btn-primary mb-3">Add List</button>
 
-
+      <ul id="brandList" class="list-group">
+          <!-- List will be appended here -->
+      </ul>
+      <button id="brand-save-btn" class="btn btn-success mt-3">Save</button>
+    
+  </div>
 
 
 
@@ -48,7 +67,7 @@
 <!-- Including data.js and script.js -->
     <script src="/js/data.js"></script>
     <script src="/js/script.js"></script>
-
+    <!-- <script src="/js/scriptcopy.js"></script> -->
 </body>
 </html>
 

@@ -1,58 +1,11 @@
-// Brand list
-let brands = [
-  {
-    code: "CK",
-    name: "Calvin Klein",
-    category: "Fashion"
-  },
-  {
-    code: "LE",
-    name: "Lego",
-    category: "Toy"
-  },
-  {
-    code: "NI",
-    name: "Nike",
-    category: "Athleticwear"
-  }
-]
-
-
-//Delivery list
-let delivery = [
-  {
-    id: 100001, // unique identify each todo in the list
-    brand: "Calvin Klein",
-    itemCode: "CK10001",
-    category: "Fashion",
-    RecvDate: {
-      year: 2024,
-      month: 7,
-      day: 19,
-    },
-    address: "Tiong Bharu",
-    urgency: "High",
-  },
-  {
-    id: 100002,
-    brand: "Lego",
-    itemCode: "LE10001",
-    category: "Toy",
-    RecvDate: {
-      year: 2024,
-      month: 7,
-      day: 19,
-    },
-    address: "Boon Lay",
-    urgency: "Low",
-  },
-];
-
-///////////////////////////////////////////
+const BASE_JSON_BIN_URL = "https://api.jsonbin.io/v3/b";
+const BIN_ID = "66ad1585ad19ca34f8908414";
+const BIN_ID_BRANDS = "66ad1423ad19ca34f89083a4";
+const MASTER_KEY = "$2a$10$y1tgTAZW7ein9.n.wH.cdu5devx/WpoPJO8HwXrcCiHDfO8/CwB3q";
 
 // Add task
 function addTask(delivery, brands, itemCode, address, urgency) {
-  brandCode = itemCode.toUpperCase().slice(0,2);
+  brandCode = itemCode.toUpperCase().slice(0, 2);
 
   // define date
   let toDay = {
@@ -71,8 +24,8 @@ function addTask(delivery, brands, itemCode, address, urgency) {
   };
 
   // Find brands
-  if (foundBrands){
-  
+  if (foundBrands) {
+
     // create the object that represents the record
     let taskRecord = {
       id: parseInt(Math.random() * 100000), // stop gap measure: use random number for ids is only valid for testing
@@ -86,8 +39,10 @@ function addTask(delivery, brands, itemCode, address, urgency) {
     // add the record to the array
     delivery.push(taskRecord);
 
-  }else{
-    console.log("Brand code not found, add list failed.")
+  } else {
+    console.log("Delivery code not found, add list failed.");
+    itemCode = itemCode.toUpperCase().slice(0, 2);
+    alert("Delivery code (" + itemCode + ") is missing from list, add list failed.");
   }
 
 
@@ -103,12 +58,26 @@ function updateTask(delivery, id, address, urgency) {
     }
   }
 
-  if (foundRecord){
+  if (foundRecord !== null) {
     // modify the record
-    foundRecord.address = address;
-    foundRecord.urgency = urgency;
-  } else{
-    console.log("Task is not found.")
+    // console.log("Task found.", ",address:"+ address, ",urgency:"+urgency);
+
+    // check address input value
+    if (address !== null) {
+      foundRecord.address = address;
+    }
+    // check urgency level input value  
+    if (urgency !== null) {
+      let urgencyLCase = urgency.toLowerCase();
+      if (urgencyLCase == "low" || urgencyLCase == "medium" || urgencyLCase == "high") {
+        foundRecord.urgency = urgencyLCase[0].toUpperCase() + urgencyLCase.slice(1);
+      }
+
+    }
+
+  } else {
+    console.log("Task is not found.");
+    alert("Item code mismatch, update failed.")
   }
 
 }//Update task list End
@@ -122,6 +91,7 @@ function deleteTask(delivery, id) {
       break;
     }
   }
+
   if (index !== null) {
     delivery.splice(index, 1);
   } else {
@@ -130,66 +100,88 @@ function deleteTask(delivery, id) {
 
 } //Delete task list End
 
-//////////////////////6666666666666666666/////////////////////////////
-// Add brand list
 
 
-
+//////////////////////    Brands portion   /////////////////////////////
 // Modify brand list
 function modifyBrandList(brands, mode, code, name, category) {
-  if (mode === "add"){
+  if (mode === "add") {
     // add new brand
     let newlist = {
-      code: code,
+      code: code.toUpperCase(),
       name: name,
       category: category,
     }
-      brands.push(newlist);
+    brands.push(newlist);
 
-  }else {
-
-  let foundBrand = null;
-  for (let t of brands) {
-    if (t.code === code) {
-      foundBrand = t;
+  } else {
+    // find brand
+    let foundBrand = null;
+    i = 0;
+    for (let t of brands) {
+      if (t.code === code.toUpperCase()) {
+        foundBrand = t;
+        break;
+      }
+      i += 1;
     }
-  }
+    if (foundBrand !== null) {
+      if (mode === "delete") {
+        brands.splice(i, 1);
 
-  if (foundBrand && mode ==="update"){
-    // modify the record
-    foundBrand.name = name;
-    foundBrand.category = category;
-  } else{
-    console.log("Task is not found.")
+      } else if (mode === "update") {
+        if (name !== null) {
+          foundBrand.name = name;
+        }
+        if (category !== null) {
+          foundBrand.category = category;
+        }
+
+      } else if (foundBrand == null) {
+        // Failed!!
+        console.log("Brand code is not found.");
+      }
+    }else {
+      console.log("Brand code not found, update list failed.");
+      alert("Brand code is missing, add list failed.");
+  
+    }
   }
 }// Modify brand list End
 
-  }
+
+//async function for delivery object list
+async function loadTasks() {
+  const response = await axios.get(BASE_JSON_BIN_URL + "/" + BIN_ID + "/latest");
+  return response.data.record;
+}
+
+async function saveTasks(delivery) {
+  const response = await axios.put(`${BASE_JSON_BIN_URL}/${BIN_ID}`, delivery, {
+    headers: {
+      "Content-Type": "application/json",
+      "X-Master-Key": MASTER_KEY
+    }
+  });
+  return response.data;
+}
 
 
+//async function for brand object list
+async function loadBrands() {
+  const response = await axios.get(BASE_JSON_BIN_URL + "/" + BIN_ID_BRANDS + "/latest");
+  return response.data.record;
+}
 
-
-
-
-
-
-
-
-
-
-  }
-  
-  
-
-
-
-
-
-
-
-  
-  
-
+async function saveBrands(brands) {
+  const response = await axios.put(`${BASE_JSON_BIN_URL}/${BIN_ID_BRANDS}`, brands, {
+    headers: {
+      "Content-Type": "application/json",
+      "X-Master-Key": MASTER_KEY
+    }
+  });
+  return response.data;
+}
 
 
 
